@@ -17,17 +17,14 @@ class ListaDeComprasView(generics.GenericAPIView):
     def post(self, request, id):
         prod_serial = ProductoSerializer(data=request.data)
         
-        if prod_serial.is_valid():
+        valid = prod_serial.is_valid()
+        
+        if valid:
             prod_serial.save()
-            msg = "Creacion exitosa"
-            code = 200
-            data = prod_serial.data
-        else:
-            msg = "Creacion fallida"
-            code = 500
-            data = prod_serial.errors
 
-        return Response({"msg": msg, "data": data}, code)
+        response = response_log("Creacion", valid, prod_serial.data, prod_serial.errors)
+
+        return Response(*response)
 
     # Read - Obtener elementos de la lista
     def get(self, request, id):
@@ -40,29 +37,45 @@ class ListaDeComprasView(generics.GenericAPIView):
         prod = Producto.objects.get(id=id)
         prod_serial = ProductoSerializer(prod, data=request.data, partial=True)
 
-        if prod_serial.is_valid():
+        valid = prod_serial.is_valid()
+        
+        if valid:
             prod_serial.save()
-            msg = "Modificacion exitosa"
-            code = 200
-            data = prod_serial.data
-        else:
-            msg = "Modificacion fallida"
-            code = 500
-            data = prod_serial.errors
 
-        return Response({"msg": msg, "data": data}, code)
+        response = response_log("Modificacion", valid, prod_serial.data, prod_serial.errors)
+
+        return Response(*response)
 
     # Delete - Eliminar un elemento de la lista
     def delete(self, request, id):
         try:
             prod = Producto.objects.get(id=id)
             prod.delete()
-            msg = "Eliminacion exitosa"
-            code = 200
+            deletion = True
         
         except ObjectDoesNotExist as e:
-            msg = "El producto no existe en la base de datos"
-            code = 500
+            deletion = False
         
         finally:
-            return Response({"msg": msg}, status=code)
+            response = response_log("Eliminacion", deletion, err=e.__dict__)
+            return Response(*response)
+
+
+def response_log(action: str, success: bool = True,
+                 data: dict | list = None, err: dict = None) -> tuple:
+    """
+    Funcion auxiliar. Encargada de generar los parametros de informacion enviados
+    en el Response HTTP.
+    """
+    if success:
+        code = 200
+        msg = "realizado con exito."
+    else:
+        code = 500
+        msg = "ha fracasado."
+    response = {
+        "msg": f"{action} {msg}",
+        "code": code,
+        "data": data,
+    }
+    return response, code
