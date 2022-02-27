@@ -12,6 +12,7 @@ from .models import Producto
 
 # Create your views here.
 class ListaDeComprasView(generics.GenericAPIView):
+    serializer_class = ProductoSerializer
 
     # Create - Agregar un producto a la lista
     def post(self, request, id):
@@ -28,8 +29,12 @@ class ListaDeComprasView(generics.GenericAPIView):
 
     # Read - Obtener elementos de la lista
     def get(self, request, id):
-        prods = Producto.objects.all()
-        data = [ProductoSerializer(prod).data for prod in prods]
+        if id == 0:
+            prods = Producto.objects.all()
+            data = [ProductoSerializer(prod).data for prod in prods]
+        else:
+            prod = Producto.objects.get(id=id)
+            data = ProductoSerializer(prod).data
         return Response(data, 200)
 
     # Update - Modificar un elemento de la lista
