@@ -4,8 +4,8 @@ import Button from 'react-bootstrap/Button'
 import Modal from 'react-bootstrap/Modal'
 
 
-// const API = process.env.REACT_APP_API;
-const API = "http://localhost:8000/api/v1"
+const API = process.env.REACT_APP_API;
+// const API = "http://localhost:8000/api/v1"
 
 const ProductoModal = ({ show, setShow, editing, id, setId, productos, setProductos }) => {
 

@@ -9,8 +9,8 @@ import { faPenToSquare } from '@fortawesome/free-solid-svg-icons/faPenToSquare';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 
 
-// const API = process.env.REACT_APP_API;
-const API = "http://localhost:8000/api/v1"
+const API = process.env.REACT_APP_API;
+// const API = "http://localhost:8000/api/v1"
 
 const List = () => {
 
@@ -32,6 +32,25 @@ const List = () => {
     const list = await r.json();
     setProductos(list);
   };
+
+  const deleteProducto = async (pk) => {
+    const userResponse = window.confirm("Desea eliminar este producto?");
+    if (userResponse) {
+      await fetch(
+        `${API}/${pk}`,
+        {
+          method: "DELETE",
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      )
+
+      await getProductos();
+    }
+  }
+
 
 
   useEffect(() => {
@@ -100,7 +119,7 @@ const List = () => {
                     <Button variant='primary' onClick={() => { setShowModal(true); setEditing(true); setId(p.id) }}>
                       <FontAwesomeIcon icon={faPenToSquare} />
                     </Button>
-                    <Button variant='danger'>
+                    <Button variant='danger' onClick={() => deleteProducto(p.id)}>
                       <FontAwesomeIcon icon={faTrash} />
                     </Button>
                   </ButtonGroup>
