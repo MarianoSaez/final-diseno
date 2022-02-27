@@ -30,7 +30,7 @@ class ListaDeComprasView(generics.GenericAPIView):
     # Read - Obtener elementos de la lista
     def get(self, request, id):
         if id == 0:
-            prods = Producto.objects.all()
+            prods = Producto.objects.all()  # .order_by("tipo_tienda")  # Ordenar por tipo de tienda
             data = [ProductoSerializer(prod).data for prod in prods]
         else:
             prod = Producto.objects.get(id=id)
@@ -57,17 +57,18 @@ class ListaDeComprasView(generics.GenericAPIView):
             prod = Producto.objects.get(id=id)
             prod.delete()
             deletion = True
+            e = None
         
-        except ObjectDoesNotExist as e:
+        except Exception as e:
             deletion = False
         
         finally:
-            response = response_log("Eliminacion", deletion, err=e.__dict__)
+            response = response_log("Eliminacion", deletion, err=e)
             return Response(*response)
 
 
 def response_log(action: str, success: bool = True,
-                 data: dict | list = None, err: dict = None) -> tuple:
+                 data: dict | list = None, err: dict | Exception = None) -> tuple:
     """
     Funcion auxiliar. Encargada de generar los parametros de informacion enviados
     en el Response HTTP.
@@ -82,5 +83,6 @@ def response_log(action: str, success: bool = True,
         "msg": f"{action} {msg}",
         "code": code,
         "data": data,
+        "error": err,
     }
     return response, code
