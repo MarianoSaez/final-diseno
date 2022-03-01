@@ -1,0 +1,21 @@
+version: '3'
+services:
+  front:
+    build:
+      context: .
+      dockerfile: react-dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - back
+    command: bash -c "npm start"
+
+  back:
+    build:
+      context: .
+      dockerfile: django-dockerfile
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+
+  

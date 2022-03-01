@@ -1,0 +1,6 @@
+FROM node:14.18.1
+RUN mkdir front
+WORKDIR /front
+ADD front/ /front/
+RUN npm install
+ENV PATH /front/node_modules/.bin:$PATH
